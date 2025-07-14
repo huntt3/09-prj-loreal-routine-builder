@@ -21,6 +21,51 @@ async function loadProducts() {
   return data.products;
 }
 
+/* Track selected products */
+let selectedProducts = [];
+
+/* Update the Selected Products section */
+function updateSelectedProducts() {
+  const selectedProductsList = document.getElementById("selectedProductsList");
+  selectedProductsList.innerHTML = selectedProducts
+    .map(
+      (product) => `
+      <div class="selected-product-item" data-id="${product.id}">
+        <img src="${product.image}" alt="${product.name}" />
+        <div>
+          <h4>${product.name}</h4>
+          <button class="remove-btn">Remove</button>
+        </div>
+      </div>
+    `
+    )
+    .join("");
+
+  // Add event listeners to remove buttons
+  const removeButtons = selectedProductsList.querySelectorAll(".remove-btn");
+  removeButtons.forEach((button) => {
+    button.addEventListener("click", (e) => {
+      const productId = e.target.closest(".selected-product-item").dataset.id;
+      selectedProducts = selectedProducts.filter((p) => p.id !== productId);
+      updateSelectedProducts();
+      updateProductGrid();
+    });
+  });
+}
+
+/* Update product grid to visually mark selected products */
+function updateProductGrid() {
+  const productCards = productsContainer.querySelectorAll(".product-card");
+  productCards.forEach((card) => {
+    const productId = card.dataset.id;
+    if (selectedProducts.some((p) => p.id === productId)) {
+      card.classList.add("selected");
+    } else {
+      card.classList.remove("selected");
+    }
+  });
+}
+
 /* Create HTML for displaying product cards */
 function displayProducts(products) {
   if (products.length === 0) {
@@ -30,7 +75,7 @@ function displayProducts(products) {
   productsContainer.innerHTML = products
     .map(
       (product) => `
-    <div class="product-card">
+    <div class="product-card" data-id="${product.id}">
       <img src="${product.image}" alt="${product.name}">
       <div class="product-info">
         <h3>${product.name}</h3>
@@ -40,6 +85,8 @@ function displayProducts(products) {
   `
     )
     .join("");
+
+  updateProductGrid();
 }
 
 /* Filter and display products when category changes */
@@ -247,3 +294,29 @@ function clearChatHistory() {
 
 // Initial render
 renderMessages();
+
+/* Handle product card click */
+productsContainer.addEventListener("click", (e) => {
+  const card = e.target.closest(".product-card");
+  if (!card) return;
+
+  const productId = card.dataset.id;
+  const productName = card.querySelector("h3").textContent;
+  const productImage = card.querySelector("img").src;
+
+  const existingProduct = selectedProducts.find((p) => p.id === productId);
+  if (existingProduct) {
+    // Unselect product
+    selectedProducts = selectedProducts.filter((p) => p.id !== productId);
+  } else {
+    // Select product
+    selectedProducts.push({
+      id: productId,
+      name: productName,
+      image: productImage,
+    });
+  }
+
+  updateSelectedProducts();
+  updateProductGrid();
+});

@@ -13,3 +13,7 @@ We provide the simplest, beginner-friendly code possible.
 We do NOT use `export` statements. Instead we link to JS files from `index.html`.
 
 We use `const` and `let` for variables and template literals for string formatting and DOM insertion.
+
+We use localStorage to store data, and we check for existing data before making API calls.
+
+We style the webpage to have a website fitting a beauty salon theme, using CSS to create a visually appealing layout.
