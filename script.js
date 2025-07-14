@@ -23,6 +23,10 @@ async function loadProducts() {
 
 /* Create HTML for displaying product cards */
 function displayProducts(products) {
+  if (products.length === 0) {
+    productsContainer.innerHTML = `<div class="no-results">No products found in this category.</div>`;
+    return;
+  }
   productsContainer.innerHTML = products
     .map(
       (product) => `
@@ -52,12 +56,12 @@ categoryFilter.addEventListener("change", async (e) => {
   displayProducts(filteredProducts);
 });
 
-const messages = [
-  {
-    role: "system",
-    content: `You are a professional but friendly Loreal expert and advocate. You guide the user to L'Oreal products, beauty routines and recommendations.\n\nIf a user's query is unrelated to L'Oreal products, L'Oreal routines and L'Oreal recommendations, respond by stating that you do not know. L'Oreal may be spelled Loreal, L'Oréal among others.`,
-  },
-];
+const defaultSystemMessage = {
+  role: "system",
+  content: `You are a professional but friendly Loreal expert and advocate. You guide the user to L'Oreal products, beauty routines and recommendations.\n\nIf a user's query is unrelated to L'Oreal products, L'Oreal routines and L'Oreal recommendations, respond by stating that you do not know. L'Oreal may be spelled Loreal, L'Oréal among others.`,
+};
+
+let messages = [defaultSystemMessage];
 
 // Reference for appending messages (use chatWindow for simplicity)
 const chatbotMessages = chatWindow;
@@ -131,6 +135,7 @@ async function sendMessageToOpenAI(userInput) {
   // Add the user's message to the messages array
   messages.push({ role: "user", content: userInput });
   renderMessages();
+  saveMessagesToLocalStorage();
 
   // Add 'Thinking...' animation
   const thinkingDiv = document.createElement("div");
@@ -188,6 +193,7 @@ async function sendMessageToOpenAI(userInput) {
         content: "Sorry, I couldn't understand the response from the server.",
       });
       renderMessages();
+      saveMessagesToLocalStorage();
       console.error("No valid assistant reply in response:", data);
       return;
     }
@@ -195,6 +201,7 @@ async function sendMessageToOpenAI(userInput) {
     // Add the assistant's reply to the messages array
     messages.push({ role: "assistant", content: assistantReply });
     renderMessages();
+    saveMessagesToLocalStorage();
   } catch (error) {
     // Remove 'Thinking...' animation
     const thinkingMsg = document.getElementById("thinking-message");
@@ -206,8 +213,36 @@ async function sendMessageToOpenAI(userInput) {
         "Sorry, there was a problem connecting to the server. Please try again later.",
     });
     renderMessages();
+    saveMessagesToLocalStorage();
     console.error("API error:", error);
   }
+}
+
+function saveMessagesToLocalStorage() {
+  const nonSystemMessages = messages.filter((m) => m.role !== "system");
+  localStorage.setItem("chatHistory", JSON.stringify(nonSystemMessages));
+}
+
+const storedMessages = localStorage.getItem("chatHistory");
+if (storedMessages) {
+  try {
+    const parsed = JSON.parse(storedMessages);
+    if (Array.isArray(parsed)) {
+      messages = [
+        defaultSystemMessage,
+        ...parsed.filter((m) => m.role !== "system"),
+      ];
+      renderMessages();
+    }
+  } catch (e) {
+    console.warn("Failed to load chat history from localStorage", e);
+  }
+}
+
+function clearChatHistory() {
+  localStorage.removeItem("chatHistory");
+  messages = [defaultSystemMessage];
+  renderMessages();
 }
 
 // Initial render
