@@ -3,6 +3,7 @@ const categoryFilter = document.getElementById("categoryFilter");
 const productsContainer = document.getElementById("productsContainer");
 const chatForm = document.getElementById("chatForm");
 const chatWindow = document.getElementById("chatWindow");
+const userInput = document.getElementById("userInput");
 
 const workerUrl = "https://loreal-worker.trevorhunt987.workers.dev/";
 
@@ -49,13 +50,6 @@ categoryFilter.addEventListener("change", async (e) => {
   );
 
   displayProducts(filteredProducts);
-});
-
-/* Chat form submission handler - placeholder for OpenAI integration */
-chatForm.addEventListener("submit", (e) => {
-  e.preventDefault();
-
-  chatWindow.innerHTML = "Connect to the OpenAI API for a response!";
 });
 
 const messages = [
@@ -117,7 +111,9 @@ function addMessageToChat(sender, message) {
       ? `<strong>You:</strong> ${message}`
       : `<strong>Smart Product Advisor:</strong> ${message}`;
   chatbotMessages.appendChild(msgDiv);
-  chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+  setTimeout(() => {
+    chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+  }, 10);
 }
 
 /* Handle form submit */
@@ -143,7 +139,9 @@ async function sendMessageToOpenAI(userInput) {
   thinkingDiv.innerHTML =
     '<strong>Smart Product Advisor:</strong> <span class="thinking-dots">Thinking<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span>';
   chatbotMessages.appendChild(thinkingDiv);
-  chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+  setTimeout(() => {
+    chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+  }, 10);
 
   // Prepare the API request for the Cloudflare Worker
   const apiUrl = workerUrl; // Use the workerUrl instead of OpenAI endpoint
