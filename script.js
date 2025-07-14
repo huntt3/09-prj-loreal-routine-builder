@@ -7,6 +7,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const chatWindow = document.getElementById("chatWindow");
   const userInput = document.getElementById("userInput");
 
+  let allProducts = [];
+  let currentCategory = "";
+  let currentSearchTerm = "";
+
   const workerUrl = "https://loreal-worker-2.trevorhunt987.workers.dev/";
 
   /* Show initial placeholder until user selects a category */
@@ -20,7 +24,8 @@ document.addEventListener("DOMContentLoaded", () => {
   async function loadProducts() {
     const response = await fetch("products.json");
     const data = await response.json();
-    return data.products;
+    allProducts = data.products;
+    return allProducts;
   }
 
   /* Track selected products */
@@ -124,22 +129,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* Filter and display products when category changes */
   categoryFilter.addEventListener("change", async (e) => {
-    const products = await loadProducts();
-    const selectedCategory = e.target.value;
-
-    /* filter() creates a new array containing only products 
-       where the category matches what the user selected */
-    const filteredProducts = products.filter(
-      (product) => product.category === selectedCategory
-    );
-
-    displayProducts(filteredProducts);
+    await loadProducts();
+    currentCategory = categoryFilter.value;
+    filterAndDisplayProducts();
   });
 
   const defaultSystemMessage = {
     role: "system",
-    content: `You are a professional but friendly Loreal expert and advocate. You guide the user to L'Oreal products, beauty routines and recommendations.\n\nIf a user's query is unrelated to L'Oreal products, L'Oreal routines and L'Oreal recommendations, respond by stating that you do not know. L'Oreal may be spelled Loreal, L'Oréal among others.`,
+    content: `You are a professional but friendly Loreal expert and advocate. You guide the user to L'Oreal products, beauty routines and recommendations.\n\nIf a user's query is unrelated to L'Oreal products, L'Oreal routines and L'Oreal recommendations, respond by stating that you do not know. Give links to relevant L'Oreal websites if applicable. L'Oreal may be spelled Loreal, L'Oréal among others.`,
   };
+
+  const searchInput = document.getElementById("searchInput");
+  searchInput.addEventListener("input", (e) => {
+    currentSearchTerm = e.target.value.toLowerCase();
+    filterAndDisplayProducts();
+  });
+
+  function filterAndDisplayProducts() {
+    const filtered = allProducts.filter((product) => {
+      const matchesCategory =
+        !currentCategory || product.category === currentCategory;
+      const matchesSearch =
+        !currentSearchTerm ||
+        product.name.toLowerCase().includes(currentSearchTerm) ||
+        product.description.toLowerCase().includes(currentSearchTerm);
+      return matchesCategory && matchesSearch;
+    });
+
+    displayProducts(filtered);
+  }
 
   let messages = [defaultSystemMessage];
 
