@@ -361,6 +361,14 @@ document.addEventListener("DOMContentLoaded", () => {
   /* Load selected products on page load */
   loadSelectedProductsFromLocalStorage();
 
+  /* Update system message after routine generation */
+  const updateSystemMessageForRoutine = (routine) => {
+    messages[0] = {
+      role: "system",
+      content: `You are a beauty expert. You have generated the following routine: \n${routine}\n\nYou can now answer follow-up questions related to this routine or topics like skincare, haircare, makeup, fragrance, and other beauty-related areas.`,
+    };
+  };
+
   /* Handle Generate Routine button click */
   const generateRoutineButton = document.getElementById("generateRoutine");
   if (generateRoutineButton) {
@@ -426,6 +434,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (routine) {
           addMessageToChat("assistant", routine);
+          updateSystemMessageForRoutine(routine);
         } else {
           addMessageToChat(
             "assistant",
