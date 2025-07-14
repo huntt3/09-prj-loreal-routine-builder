@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const chatWindow = document.getElementById("chatWindow");
   const userInput = document.getElementById("userInput");
 
-  const workerUrl = "https://loreal-worker.trevorhunt987.workers.dev/";
+  const workerUrl = "https://loreal-worker-2.trevorhunt987.workers.dev/";
 
   /* Show initial placeholder until user selects a category */
   productsContainer.innerHTML = `
@@ -235,13 +235,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const apiUrl = workerUrl; // Use the workerUrl instead of OpenAI endpoint
     const headers = {
       "Content-Type": "application/json",
-      // No Authorization header needed; worker handles the key
     };
     const body = {
-      model: "gpt-4o",
+      model: "gpt-4o-search-preview",
       messages: messages, // Send the full conversation history
       temperature: 0.8, // Make the assistant more creative
       max_tokens: 300, // Keep responses short and focused
+      web_search: true, // Enable web search functionality
     };
 
     try {
@@ -405,7 +405,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "Content-Type": "application/json",
       };
       const body = {
-        model: "gpt-4o",
+        model: "gpt-4o-search-preview",
         messages: [
           {
             role: "system",
