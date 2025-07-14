@@ -24,6 +24,33 @@ async function loadProducts() {
 /* Track selected products */
 let selectedProducts = [];
 
+/* Save selected products to localStorage */
+function saveSelectedProductsToLocalStorage() {
+  localStorage.setItem("selectedProducts", JSON.stringify(selectedProducts));
+}
+
+/* Load selected products from localStorage */
+function loadSelectedProductsFromLocalStorage() {
+  const savedProducts = localStorage.getItem("selectedProducts");
+  if (savedProducts) {
+    try {
+      selectedProducts = JSON.parse(savedProducts);
+      updateSelectedProducts();
+      updateProductGrid();
+    } catch (e) {
+      console.error("Failed to parse saved products from localStorage", e);
+    }
+  }
+}
+
+/* Clear all selected products */
+function clearSelectedProducts() {
+  selectedProducts = [];
+  saveSelectedProductsToLocalStorage();
+  updateSelectedProducts();
+  updateProductGrid();
+}
+
 /* Update the Selected Products section */
 function updateSelectedProducts() {
   const selectedProductsList = document.getElementById("selectedProductsList");
@@ -47,6 +74,7 @@ function updateSelectedProducts() {
     button.addEventListener("click", (e) => {
       const productId = e.target.closest(".selected-product-item").dataset.id;
       selectedProducts = selectedProducts.filter((p) => p.id !== productId);
+      saveSelectedProductsToLocalStorage();
       updateSelectedProducts();
       updateProductGrid();
     });
@@ -318,6 +346,10 @@ productsContainer.addEventListener("click", (e) => {
     });
   }
 
+  saveSelectedProductsToLocalStorage();
   updateSelectedProducts();
   updateProductGrid();
 });
+
+/* Load selected products on page load */
+loadSelectedProductsFromLocalStorage();
