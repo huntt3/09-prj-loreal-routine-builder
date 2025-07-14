@@ -381,6 +381,17 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
+      // Add 'Thinking...' animation
+      const thinkingDiv = document.createElement("div");
+      thinkingDiv.className = "assistant-message";
+      thinkingDiv.id = "thinking-message";
+      thinkingDiv.innerHTML =
+        '<strong>Smart Product Advisor:</strong> <span class="thinking-dots">Thinking<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span>';
+      chatbotMessages.appendChild(thinkingDiv);
+      setTimeout(() => {
+        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+      }, 10);
+
       // Prepare data for OpenAI API
       const productData = selectedProducts.map((product) => ({
         name: product.name,
@@ -426,6 +437,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const data = await response.json();
 
+        // Remove 'Thinking...' animation
+        const thinkingMsg = document.getElementById("thinking-message");
+        if (thinkingMsg) thinkingMsg.remove();
+
         const routine =
           data.choices &&
           data.choices[0] &&
@@ -443,6 +458,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       } catch (error) {
         console.error("Error generating routine:", error);
+        // Remove 'Thinking...' animation
+        const thinkingMsg = document.getElementById("thinking-message");
+        if (thinkingMsg) thinkingMsg.remove();
         addMessageToChat(
           "assistant",
           "There was an error generating your routine. Please try again later."
